@@ -38,65 +38,47 @@ def get_event_links(driver, wait, url):
 def extract_tickets(driver, wait, event_url):
     driver.get(event_url)
 
-    wait.until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
+    wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
 
-    print(f'\n Event: {event_url}')
+    print(f"\nEvent: {event_url}")
 
-    tickets = []
+    ticket_elements = driver.find_elements(By.CSS_SELECTOR, "tr.ticketTypes")
 
-    try:
-        # Find Ticket Container
-        price_elements = driver.find_elements(By.XPATH, "//*[contains(text(),'Euro')]")
-        if not price_elements:
-            price_elements = driver.find_elements(By.XPATH, "//*[contains(text(),'€')]")
+    tickets = parse_ticket_elements(ticket_elements)
 
-        ticket_elements = []
-
-        for price_el in price_elements:
-            try:
-                row = price_el.find_element(By.XPATH, "./ancestor::div[1]")
-                ticket_elements.append(row)
-            except Exception:
-                continue
-
-        tickets = parse_ticket_elements(ticket_elements)
-
-    except Exception as err:
-        print(f"Fehler beim Auslesen: {err}")
-        tickets = []
-
-    if not tickets:
-        print('Tickets nicht gefunden oder ausverkauft.')
-    else:
-        for t in tickets:
-            print(f'Ticket: {t['title']} | {t['price']} | {t['status']}')
+    for t in tickets:
+        print(f"Ticket: {t['title']} | {t['price']} | {t['status']}")
 
     return tickets
+
+def safe_text(parent, selector, default="UNKNOWN"):
+    try:
+        return parent.find_element(By.CSS_SELECTOR, selector).text.strip()
+    except Exception:
+        return default
+
+def has_element(parent, by, selector):
+    return len(parent.find_elements(by, selector)) > 0
 
 def parse_ticket_elements(ticket_elements):
     tickets = []
 
     for el in ticket_elements:
-        text = el.text.strip()
+        try:
+            title = el.find_element(By.CSS_SELECTOR, ".ticketType-title").text.strip()
+        except Exception:
+            title = "UNKNOWN"
 
-        if not text:
-            continue
+        try:
+            price = el.find_element(By.CSS_SELECTOR, ".ticket-price-value").text.strip()
+        except Exception:
+            price = "UNKNOWN"
 
-        lines = text.split("\n")
+        is_sold_out = has_element(el, By.CSS_SELECTOR, ".ticketTypeSumSoldOut")
 
-        title = lines[0].strip() if lines else "UNKNOWN"
-
-        price = "UNKNOWN"
-        for line in lines:
-            if "Euro" in line or "€" in line:
-                price = line.strip()
-                break
-
-        lower_text = text.lower()
-
-        if "ausverkauft" in lower_text or "sold out" in lower_text:
+        if is_sold_out:
             status = "AUSVERKAUFT"
-        elif "warenkorb" in lower_text or "cart" in lower_text or price != "UNKNOWN":
+        elif price != "UNKNOWN" and "Euro" in price:
             status = "VERFÜGBAR"
         else:
             status = "UNBEKANNT"

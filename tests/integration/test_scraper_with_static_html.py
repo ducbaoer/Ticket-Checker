@@ -7,6 +7,8 @@ def test_get_event_links_from_fixture(driver, wait, fixture_url):
 
     assert len(links) == 3
     assert "ticketio_event_available.html" in links[0]
+    assert "ticketio_event_sold_out.html" in links[1]
+    assert "ticketio_event_mixed.html" in links[2]
 
 def test_extract_available_tickets(driver, wait, fixture_url):
     url = fixture_url("ticketio_event_available.html")
@@ -41,11 +43,11 @@ def test_full_flow_from_listing(driver, wait, fixture_url):
 
     event_links = get_event_links(driver, wait, listing_url)
 
-    assert len(event_links) > 0
+    assert len(event_links) == 3
 
-    tickets = extract_tickets(driver, wait, event_links[0])
+    ticket_available = extract_tickets(driver, wait, event_links[0])
 
-    assert len(tickets) > 0
-    assert "title" in tickets[0]
-    assert "price" in tickets[0]
-    assert "status" in tickets[0]
+    assert len(ticket_available) == 2
+    assert "title" in ticket_available[0]
+    assert "price" in ticket_available[0]
+    assert "status" in ticket_available[0]

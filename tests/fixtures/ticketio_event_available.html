@@ -3,16 +3,137 @@
   <body>
     <h1>Blitz Club Night</h1>
 
-    <div class="ticket">
-      <span class="ticket-title">Early Bird</span>
-      <span class="ticket-price">15,00 €</span>
-      <button class="ticket-button">In den Warenkorb</button>
-    </div>
-
-    <div class="ticket">
-      <span class="ticket-title">Regular Ticket</span>
-      <span class="ticket-price">25,00 €</span>
-      <button class="ticket-button">In den Warenkorb</button>
-    </div>
+    <table class="table config">
+      <thead>
+        <tr>
+          <th><span class="sr-only">Tickets</span></th>
+          <th class="tickets-column" style="width: 130px; white-space: nowrap;">Einzelpreis</th>
+          <th class="tickets-column" style="width: 130px; white-space: nowrap; text-align: center !important;">Anzahl</th>
+          <th class="right tickets-column" class="right" style="width: 130px; white-space: nowrap;">Gesamtpreis</th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr class="ticketTypes ticketType192768654">
+        <td>
+          <strong class="ticketType-title">Early Bird</strong>
+          <br>
+          <small class="ticket-info-row">
+            <span class="material-symbols-rounded" aria-hidden="">calendar_month</span>
+            <span class="sr-only">Datum</span>
+            Do. 30.04.2026 — So. 03.05.2026
+          </small>
+          <p class="mobileBadgeSpace"></p>
+        </td>
+        <td style="white-space:nowrap" class="ticketSinglePrice">
+          <span class="visible-xs-block">Kosten:</span>
+          <span class="ticket-price-value">15,00 Euro</span>
+        </td>
+        <td class="td-count">
+          <span class="visible-xs-block">Anzahl:</span>
+          <div class="input-group">
+            <span class="input-group-btn minus-wrapper">
+              <button class="btn btn-link btn-ticketamount btn-ticketamount-minus disabled" title="Ticketanzahl reduzieren" tabindex="-1" type="button"><i class="fa fa-minus" aria-hidden=""></i></button>
+            </span><label for="ticketCount192768654" class="sr-only">Ticketanzahl</label>
+            <select class="ticketCount form-control" autocomplete="off" name="ticketCount192768654" id="ticketCount192768654" data-shouldpersonalize="1" data-price="45" data-tickettypename="Full Festival Ticket (THU - SUN)" data-tickettype="192768654" data-tickettypeindex="2147483647">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+            </select>
+            <span class="input-group-btn plus-wrapper">
+              <button class="btn btn-link btn-ticketamount btn-ticketamount-plus" title="Ticketanzahl erhöhen" tabindex="-1" type="button"><i class="fa fa-plus" aria-hidden=""></i></button>
+            </span>
+          </div>
+        </td>
+        <td class="ticketTypeSum dynCalc right" style="white-space:nowrap">
+          <span class="sr-only">Wird geladen...</span>
+        </td>
+      </tr>
+      <tr class="ticketTypes ticketType192768654">
+        <td>
+          <strong class="ticketType-title">Regular Ticket</strong>
+          <br>
+          <small class="ticket-info-row">
+            <span class="material-symbols-rounded" aria-hidden="">calendar_month</span>
+            <span class="sr-only">Datum</span>
+            Do. 30.04.2026 — So. 03.05.2026
+          </small>
+          <p class="mobileBadgeSpace"></p>
+        </td>
+        <td style="white-space:nowrap" class="ticketSinglePrice">
+          <span class="visible-xs-block">Kosten:</span>
+          <span class="ticket-price-value">25,00 Euro</span>
+        </td>
+        <td class="td-count">
+          <span class="visible-xs-block">Anzahl:</span>
+          <div class="input-group">
+            <span class="input-group-btn minus-wrapper">
+              <button class="btn btn-link btn-ticketamount btn-ticketamount-minus disabled" title="Ticketanzahl reduzieren" tabindex="-1" type="button"><i class="fa fa-minus" aria-hidden=""></i></button>
+            </span><label for="ticketCount192768654" class="sr-only">Ticketanzahl</label>
+            <select class="ticketCount form-control" autocomplete="off" name="ticketCount192768654" id="ticketCount192768654" data-shouldpersonalize="1" data-price="45" data-tickettypename="Full Festival Ticket (THU - SUN)" data-tickettype="192768654" data-tickettypeindex="2147483647">
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+            </select>
+            <span class="input-group-btn plus-wrapper">
+              <button class="btn btn-link btn-ticketamount btn-ticketamount-plus" title="Ticketanzahl erhöhen" tabindex="-1" type="button"><i class="fa fa-plus" aria-hidden=""></i></button>
+            </span>
+          </div>
+        </td>
+        <td class="ticketTypeSum dynCalc right" style="white-space:nowrap">
+          <span class="sr-only">Wird geladen...</span>
+        </td>
+      </tr>
+      <tr>
+        <td class="hidden-xs"></td>
+        <td class="right price-sum hidden-xs">Kosten insgesamt:</td>
+        <td class="visible-xs-block right price-sum mobile-table-highlight">Kosten insgesamt:</td>
+        <th class="ticketTypeSum hidden-xs" style="text-align: center !important;">
+          <span class="dynCalc dynTicketCount">0</span>Artikel</th>
+        <th class="visible-xs-block ticketTypeSum" style="text-align: right !important;"><span class="dynCalc dynTicketCount">0</span> Artikel</th>
+        <th class="dynPriceAllTickets right ticketTypeSum hidden-xs" style="white-space:nowrap;">0,00 Euro</th>
+        <th class="visible-xs-block dynPriceAllTickets right ticketTypeSum" style="white-space:nowrap; text-align: right !important;">0,00 Euro</th>
+      </tr>
+      <tr class="tio-fee">
+        <td class="hidden-xs"></td>
+        <td class="right total-price hidden-xs">Vorverkaufsgebühren:<br>
+          <small>inklusive aller Abwicklungskosten</small>
+        </td>
+        <td class="visible-xs-block right total-price mobile-table-highlight">Vorverkaufsgebühren:<br>
+          <small>inklusive aller Abwicklungskosten</small>
+        </td>
+        <td class="hidden-xs"></td>
+        <th class="right dynCalc dynZAK ticketTypeSum" style="justify-content: end">0,00 Euro</th>
+      </tr>
+      <tr class="discountRow hideni" style="display: none;">
+        <td class="hidden-xs"></td>
+        <td colspan="1" class="right dynCalc dynDiscountName green mobile-table-highlight">
+          <span class="sr-only">Wird geladen...</span>
+        </td>
+        <td class="hidden-xs">
+        </td>
+        <th colspan="1" class="right dynCalc dynDiscount green">
+          <span class="sr-only">Wird geladen...</span>
+        </th>
+      </tr>
+      <tr class="hideni topupFeeRow" style="display: none;">
+        <td colspan="2" class="right">:</td>
+        <th colspan="2" class="dynCalc dynTopupFee right">
+          <span class="sr-only">Wird geladen...</span>
+        </th>
+      </tr>
+      <tr>
+        <td class="hidden-xs"></td>
+        <th class="right bigger hidden-xs">Zwischensumme:</th>
+        <th class="visible-xs-block right bigger mobile-table-highlight">Zwischensumme:</th>
+        <td class="hidden-xs"></td>
+        <th class="visible-xs-block include-vat">Alle Preise verstehen sich inklusive MwSt.</th>
+        <th class="bigger dynCalc dynPriceWppf right sss hidden-xs" style="white-space:nowrap;">0,00 Euro</th>
+        <th class="visible-xs-block bigger dynCalc dynPriceWppf right sss" style="white-space:nowrap; text-align: right !important; border-top: 0;">0,00 Euro</th>
+      </tr>
+      <tr class="hidden-xs">
+        <th colspan="4" class="include-vat right smaller">alle Preise verstehen sich inklusive MwSt.</th>
+      </tr>
+      </tbody>
+    </table>
   </body>
 </html>

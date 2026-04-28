@@ -1,36 +1,111 @@
 from ticket_checker.scraper import parse_ticket_elements
 
 class FakeElement:
-    def __init__(self, text="", attributes=None, children=None):
+    def __init__(self, tag="div", text="", attributes=None, children=None):
+        self.tag = tag
         self._text = text
         self._attributes = attributes or {}
-        self._children = children or {}
+        self._children = children or []
 
     @property
     def text(self):
-        parts = [self._text.strip()] if self._text else []
+        parts = []
 
-        for child in self._children.values():
+        if self._text.strip():
+            parts.append(self._text.strip())
+
+        for child in self._children:
             child_text = child.text.strip()
             if child_text:
                 parts.append(child_text)
 
         return "\n".join(parts)
 
-    def find_element(self, by, selector):
-        if selector in self._children:
-            return self._children[selector]
-        raise Exception("Element not found")
-
     def get_attribute(self, name):
         return self._attributes.get(name)
 
+    def find_element(self, by, selector):
+        results = self.find_elements(by, selector)
+
+        if not results:
+            raise Exception(f"Element not found: {selector}")
+
+        return results[0]
+
+    def find_elements(self, by, selector):
+        results = []
+
+        for child in self._children:
+            if child.matches(selector):
+                results.append(child)
+
+            results.extend(child.find_elements(by, selector))
+
+        return results
+
+    def matches(self, selector):
+        if selector.startswith("."):
+            class_name = selector[1:]
+            classes = self._attributes.get("class", "").split()
+            return class_name in classes
+
+        if selector.startswith("#"):
+            element_id = selector[1:]
+            return self._attributes.get("id") == element_id
+
+        return self.tag == selector
+
+def make_ticket(title, price, sold_out=False):
+    children = [
+        FakeElement(
+            tag="td",
+            children=[
+                FakeElement(
+                    tag="strong",
+                    attributes={"class": "ticketType-title"},
+                    text=title,
+                )
+            ],
+        ),
+        FakeElement(
+            tag="td",
+            attributes={"class": "ticketSinglePrice"},
+            children=[
+                FakeElement(
+                    tag="span",
+                    attributes={"class": "ticket-price-value"},
+                    text=price,
+                )
+            ],
+        ),
+    ]
+
+    if sold_out:
+        children.append(
+            FakeElement(
+                tag="td",
+                attributes={"class": "ticketTypeSumSoldOut right"},
+                children=[
+                    FakeElement(
+                        tag="span",
+                        attributes={"class": "badge badge-important out-badge"},
+                        text="Ausverkauft",
+                    )
+                ],
+            )
+        )
+
+    return FakeElement(
+        tag="tr",
+        attributes={"class": "ticketTypes ticketType123"},
+        children=children,
+    )
+
 def test_parse_ticket_full_logic():
-    ticket = FakeElement(children={
-        ".ticket-title": FakeElement(text="Early Bird"),
-        ".ticket-price": FakeElement(text="15,00 €"),
-        ".ticket-button": FakeElement(text="In den Warenkorb"),
-    })
+    ticket = make_ticket(
+        title="Early Bird",
+        price="15,00 Euro",
+    )
 
     result = parse_ticket_elements([ticket])
 
@@ -38,61 +113,66 @@ def test_parse_ticket_full_logic():
 
     assert parsed == {
         "title": "Early Bird",
-        "price": "15,00 €",
+        "price": "15,00 Euro",
         "status": "VERFÜGBAR"
     }
 
 def test_ticket_available_status_only():
-    ticket = FakeElement(children={
-        ".ticket-title": FakeElement(text="Regular"),
-        ".ticket-price": FakeElement(text="25,00 €"),
-        ".ticket-button": FakeElement(text="In den Warenkorb"),
-    })
+    ticket = make_ticket(
+        title="Regular",
+        price="25,00 Euro",
+    )
 
     result = parse_ticket_elements([ticket])
 
     assert result[0]["status"] == "VERFÜGBAR"
 
 def test_ticket_sold_out_disabled():
-    ticket = FakeElement(children={
-        ".ticket-title": FakeElement(text="Standard"),
-        ".ticket-price": FakeElement(text="30,00 €"),
-        ".ticket-button": FakeElement(
-            text="Ausverkauft",
-            attributes={"disabled": "true"},
-        ),
-    })
+    ticket = make_ticket(
+        title="Standard",
+        price="30,00 Euro",
+        sold_out=True
+    )
 
     result = parse_ticket_elements([ticket])
 
     assert result[0]["status"] == "AUSVERKAUFT"
 
 def test_ticket_sold_out_text():
-    ticket = FakeElement(children={
-        ".ticket-title": FakeElement(text="VIP"),
-        ".ticket-price": FakeElement(text="99,00 €"),
-        ".ticket-button": FakeElement(text="Ausverkauft"),
-    })
+    ticket = make_ticket(
+        title="VIP",
+        price="99,00 Euro",
+        sold_out=True
+    )
 
     result = parse_ticket_elements([ticket])
 
     assert result[0]["status"] == "AUSVERKAUFT"
 
 def test_ticket_unknown_status():
-    ticket = FakeElement(children={
-        ".ticket-title": FakeElement(text="Mystery"),
-        ".ticket-price": FakeElement(text="??"),
-        ".ticket-button": FakeElement(text="Coming soon"),
-    })
+    ticket = make_ticket(
+        title="Mystery",
+        price="??",
+    )
 
     result = parse_ticket_elements([ticket])
 
     assert result[0]["status"] == "UNBEKANNT"
 
 def test_missing_fields():
-    ticket = FakeElement(children={
-        ".ticket-title": FakeElement(text="No Price Ticket"),
-    })
+    only_title = FakeElement(
+        tag="td",
+        children=[FakeElement(
+            tag="strong",
+            attributes={"class": "ticketType-title"},
+            text="No Price Ticket")
+        ]
+    )
+    ticket = FakeElement(
+        tag="tr",
+        attributes={"class": "ticketTypes ticketType123"},
+        children=[only_title],
+    )
 
     result = parse_ticket_elements([ticket])
 
@@ -101,18 +181,16 @@ def test_missing_fields():
     assert result[0]["status"] == "UNBEKANNT"
 
 def test_multiple_tickets():
-    tickets = [
-        FakeElement(children={
-            ".ticket-title": FakeElement(text="A"),
-            ".ticket-price": FakeElement(text="10€"),
-            ".ticket-button": FakeElement(text="In den Warenkorb"),
-        }),
-        FakeElement(children={
-            ".ticket-title": FakeElement(text="B"),
-            ".ticket-price": FakeElement(text="20€"),
-            ".ticket-button": FakeElement(text="Ausverkauft"),
-        }),
-    ]
+    ticket_1 = make_ticket(
+        title="A",
+        price="10 Euro",
+    )
+    ticket_2 = make_ticket(
+        title="B",
+        price="20 Euro",
+        sold_out=True
+    )
+    tickets = [ticket_1, ticket_2]
 
     result = parse_ticket_elements(tickets)
 

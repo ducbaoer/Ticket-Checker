@@ -14,9 +14,6 @@ def main():
         for event_url in event_links:
             tickets = extract_tickets(driver, wait, event_url)
 
-            for ticket in tickets:
-                print(f"{ticket['title']} | {ticket['price']} | {ticket['status']}")
-
     finally:
         driver.quit()
 
