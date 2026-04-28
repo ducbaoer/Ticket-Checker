@@ -1,4 +1,4 @@
-from ticket_checker.scraper import parse_ticket_elements
+from ticket_checker.scraper import parse_ticket_elements, filter_valid_tickets
 
 class FakeElement:
     def __init__(self, tag="div", text="", attributes=None, children=None):
@@ -197,3 +197,15 @@ def test_multiple_tickets():
     assert len(result) == 2
     assert result[0]["status"] == "VERFÜGBAR"
     assert result[1]["status"] == "AUSVERKAUFT"
+
+def test_filter_removes_unknown_tickets():
+    tickets = [
+        {"title": "Early Bird", "price": "15,00 Euro", "status": "VERFÜGBAR"},
+        {"title": "UNKNOWN", "price": "UNKNOWN", "status": "UNBEKANNT"},
+    ]
+
+    result = filter_valid_tickets(tickets)
+
+    assert result == [
+        {"title": "Early Bird", "price": "15,00 Euro", "status": "VERFÜGBAR"}
+    ]

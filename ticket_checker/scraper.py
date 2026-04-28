@@ -2,8 +2,41 @@ from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
+def is_valid_ticket(ticket):
+    return (
+        ticket.get("title") != "UNKNOWN"
+        and ticket.get("price") != "UNKNOWN"
+    )
+
+def filter_valid_tickets(tickets):
+    return [ticket for ticket in tickets if is_valid_ticket(ticket)]
+
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+
+
+def accept_cookies_if_present(driver, wait):
+    try:
+        # Typische Buttons (Deutsch + Englisch)
+        button = wait.until(
+            EC.element_to_be_clickable((
+                By.XPATH,
+                "//button[contains(., 'Akzeptieren') or "
+                "contains(., 'Alle akzeptieren') or "
+                "contains(., 'Zustimmen')]"
+            ))
+        )
+        button.click()
+        print("Cookies accepted")
+
+    except TimeoutException:
+        # Kein Banner vorhanden → alles gut
+        pass
+
 def get_event_links(driver, wait, url):
     driver.get(url)
+    accept_cookies_if_present(driver, wait)
 
     if "403" in driver.title or "Forbidden" in driver.page_source:
         raise RuntimeError(f"Access blocked with 403 Forbidden: {url}")
@@ -38,24 +71,29 @@ def get_event_links(driver, wait, url):
 def extract_tickets(driver, wait, event_url):
     driver.get(event_url)
 
-    wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
+    wait.until(
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, "tr.ticketTypes"))
+    )
+
+    wait.until(
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".ticketType-title"))
+    )
+
+    wait.until(
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, ".ticket-price-value"))
+    )
 
     print(f"\nEvent: {event_url}")
 
     ticket_elements = driver.find_elements(By.CSS_SELECTOR, "tr.ticketTypes")
 
     tickets = parse_ticket_elements(ticket_elements)
+    tickets = filter_valid_tickets(tickets)
 
     for t in tickets:
         print(f"Ticket: {t['title']} | {t['price']} | {t['status']}")
 
     return tickets
-
-def safe_text(parent, selector, default="UNKNOWN"):
-    try:
-        return parent.find_element(By.CSS_SELECTOR, selector).text.strip()
-    except Exception:
-        return default
 
 def has_element(parent, by, selector):
     return len(parent.find_elements(by, selector)) > 0
