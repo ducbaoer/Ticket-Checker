@@ -18,7 +18,6 @@ from selenium.common.exceptions import TimeoutException
 
 def accept_cookies_if_present(driver, wait):
     try:
-        # Typische Buttons (Deutsch + Englisch)
         button = wait.until(
             EC.element_to_be_clickable((
                 By.XPATH,
@@ -31,7 +30,6 @@ def accept_cookies_if_present(driver, wait):
         print("Cookies accepted")
 
     except TimeoutException:
-        # Kein Banner vorhanden → alles gut
         pass
 
 def get_event_links(driver, wait, url):

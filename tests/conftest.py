@@ -6,6 +6,12 @@ from ticket_checker.browser import create_driver
 
 @pytest.fixture
 def driver():
+    driver = create_driver(headless=True)
+    yield driver
+    driver.quit()
+
+@pytest.fixture
+def e2e_driver():
     driver = create_driver(headless=False)
     yield driver
     driver.quit()
@@ -13,6 +19,10 @@ def driver():
 @pytest.fixture
 def wait(driver):
     return WebDriverWait(driver, 15)
+
+@pytest.fixture
+def e2e_wait(e2e_driver):
+    return WebDriverWait(e2e_driver, 30)
 
 @pytest.fixture
 def fixture_url():
